@@ -18,7 +18,7 @@ type User struct {
 	OrganizationID   string  `json:"organization_id"`
 	OrganizationName string  `json:"organization_name"`
 	TotalPoint       int     `json:"total_point"`
-	PointHistory     []Point `json:"point_history"`
+	PointHistory     []Point `json:"donation_history"`
 }
 
 type Point struct {

@@ -116,6 +116,7 @@ func toDomainOrgPoint(point dto.OrgPoint) model.OrgPoint {
 	return model.OrgPoint{
 		Point: model.Point{
 			ID:        point.ID,
+			Title:     point.Title,
 			Amount:    point.Amount,
 			CreatedAt: point.CreatedAt,
 		},
