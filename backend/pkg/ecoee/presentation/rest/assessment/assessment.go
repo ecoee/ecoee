@@ -12,10 +12,6 @@ type RecycleAssessmentRequest struct {
 	Format string `json:"format" binding:"required"`
 }
 
-type RecycleAssessmentResponse struct {
-	Result int `json:"result"`
-}
-
 type Registry struct {
 	assessor model.Assessor
 }
