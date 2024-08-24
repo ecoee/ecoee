@@ -48,7 +48,7 @@ func (g *Repository) Assess(ctx context.Context, request model.RecycleAssessment
 		" based on the following criteria:\n" +
 		" 1. Positive(Plastic label removed and any content inside)" +
 		" 2: Negative(Plastic label not removed or some content inside)" +
-		" 3: I don't know\n" +
+		" 3: I don't know(If it's not plastic waste or unidentifiable)\n" +
 		" NOTE: Please provide the result in the following format without any description.\n" +
 		"   {\"result\": 1 }\"\n")
 	resp, err := g.gemini.GenerateContent(ctx, img, prompt)
