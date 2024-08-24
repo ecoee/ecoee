@@ -27,7 +27,7 @@ func NewRegistry(assessor domain.Assessor) *Registry {
 }
 
 func (r *Registry) Register(router *gin.Engine) {
-	router.POST("/assessment", r.assessRecycle)
+	router.POST("/assess", r.assessRecycle)
 }
 
 func (r *Registry) assessRecycle(ctx *gin.Context) {
