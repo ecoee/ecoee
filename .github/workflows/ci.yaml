@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - "/backend/**"
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+env:
+  GO_VERSION: 1.23
+
+jobs:
+  golangci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+          args: --timeout 3m -v
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+      - name: Run test with coverage
+        run: go test -p=1 ./... -v
+
+  build:
+    runs-on: ubuntu-latest
+    name: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      - name: Build go
+        run: go build -o bin/app cmd/server/main.go
