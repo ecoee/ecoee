@@ -72,9 +72,18 @@ func (r *Registry) assessRecycle(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	}
 
-	ctx.JSON(http.StatusOK, RecycleAssessmentResponse{
-		Result: resp.Result,
-	})
+	if resp.Result == 1 {
+		ctx.Status(http.StatusOK)
+		return
+	}
+	if resp.Result == 2 {
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+	if resp.Result == 3 {
+		ctx.Status(http.StatusUnauthorized)
+		return
+	}
 }
 
 func extractImageFormat(mimeType string) string {
