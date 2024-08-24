@@ -1,0 +1,14 @@
+services:
+  lint:
+    image: golangci/golangci-lint:latest
+    command: ["golangci-lint", "run", "-v"]
+    volumes:
+      - .:/app
+      - gocache:/go/cache
+    working_dir: /app
+    environment:
+      GOCACHE: /go/cache
+      GOMODCACHE: /go/cache
+      GOLANGCI_LINT_CACHE: /go/cache
+volumes:
+  gocache:

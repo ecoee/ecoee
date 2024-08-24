@@ -1,0 +1,53 @@
+run:
+  deadline: 8m
+
+linters:
+  disable-all: true
+  enable: # please keep this alphabetized
+    - errcheck
+    - errname
+    - errorlint
+    - goconst
+    - gocyclo
+    - gofmt
+    - goimports
+    - gosimple
+    - gosec
+    - govet
+    - gocognit
+    - ineffassign
+    - lll
+    - misspell
+    - nestif
+    - revive
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unused
+
+linters-settings: # please keep this alphabetized
+  gocognit:
+    min-complexity: 15
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  gocyclo:
+    min-complexity: 15
+  lll:
+    line-length: 200
+  nestif:
+    min-complexity: 12
+  revive:
+    severity: warning
+    rules:
+      - name: early-return
+        disabled: false
+      - name: error-strings
+        disabled: false
+      - name: receiver-naming
+        disabled: false
+      - name: unreachable-code
+        disabled: false
+      - name: unused-parameter
+        disabled: false
