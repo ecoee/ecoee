@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"ecoee/pkg/ecoee/domain"
+	"ecoee/pkg/ecoee/domain/model"
 	"ecoee/pkg/ecoee/infrastructure/db/dto"
 	"fmt"
 	"github.com/pkg/errors"
@@ -20,7 +20,7 @@ type PointRepository struct {
 	db *mongo.Database
 }
 
-func (r *PointRepository) ListUserPoints(ctx context.Context, orgID, userID string) ([]domain.UserPoint, error) {
+func (r *PointRepository) ListUserPoints(ctx context.Context, orgID, userID string) ([]model.UserPoint, error) {
 	cursor, err := r.db.Collection(_userCollection).Find(ctx, bson.M{"org_id": orgID, "user_id": userID})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to find user points")
@@ -31,7 +31,7 @@ func (r *PointRepository) ListUserPoints(ctx context.Context, orgID, userID stri
 		return nil, errors.Wrapf(err, "failed to decode user points")
 	}
 
-	var userPoints []domain.UserPoint
+	var userPoints []model.UserPoint
 	for _, point := range points {
 		userPoints = append(userPoints, toDomainUserPoint(point))
 	}
@@ -39,16 +39,25 @@ func (r *PointRepository) ListUserPoints(ctx context.Context, orgID, userID stri
 	return userPoints, nil
 }
 
-func (r *PointRepository) ListOrgDonationRankers(ctx context.Context, orgID string) ([]domain.OrganizationUser, error) {
-	_, err := r.db.Collection(_organizationCollection).Find(ctx, bson.M{"organization_id": orgID})
+func (r *PointRepository) ListOrgPoints(ctx context.Context, orgID string) ([]model.OrgPoint, error) {
+	cursor, err := r.db.Collection(_organizationCollection).Find(ctx, bson.M{"organization_id": orgID})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to find org points")
 	}
 
-	return nil, nil
+	var points []dto.OrgPoint
+	if err := cursor.All(ctx, &points); err != nil {
+		return nil, errors.Wrapf(err, "failed to decode org points")
+	}
+
+	var orgPoints []model.OrgPoint
+	for _, point := range points {
+		orgPoints = append(orgPoints, toDomainOrgPoint(point))
+	}
+	return orgPoints, nil
 }
 
-func (r *PointRepository) SaveUserPoint(ctx context.Context, point domain.UserPoint) error {
+func (r *PointRepository) SaveUserPoint(ctx context.Context, point model.UserPoint) error {
 	_, err := r.db.Collection(_userPointCollection).InsertOne(ctx, dto.UserPoint{
 		Point: dto.Point{
 			ID:        point.ID,
@@ -66,7 +75,7 @@ func (r *PointRepository) SaveUserPoint(ctx context.Context, point domain.UserPo
 	return nil
 }
 
-func (r *PointRepository) SaveOrgPoint(ctx context.Context, point domain.OrgPoint) error {
+func (r *PointRepository) SaveOrgPoint(ctx context.Context, point model.OrgPoint) error {
 	_, err := r.db.Collection(_orgPointCollection).InsertOne(ctx, dto.OrgPoint{
 		Point: dto.Point{
 			ID:        point.ID,
@@ -89,9 +98,9 @@ func NewPointRepository(db *mongo.Database) *PointRepository {
 	return &PointRepository{db: db}
 }
 
-func toDomainUserPoint(point dto.UserPoint) domain.UserPoint {
-	return domain.UserPoint{
-		Point: domain.Point{
+func toDomainUserPoint(point dto.UserPoint) model.UserPoint {
+	return model.UserPoint{
+		Point: model.Point{
 			ID:        point.ID,
 			Amount:    point.Amount,
 			CreatedAt: point.CreatedAt,
@@ -100,9 +109,9 @@ func toDomainUserPoint(point dto.UserPoint) domain.UserPoint {
 	}
 }
 
-func toDomainOrgPoint(point dto.OrgPoint) domain.OrgPoint {
-	return domain.OrgPoint{
-		Point: domain.Point{
+func toDomainOrgPoint(point dto.OrgPoint) model.OrgPoint {
+	return model.OrgPoint{
+		Point: model.Point{
 			ID:        point.ID,
 			Amount:    point.Amount,
 			CreatedAt: point.CreatedAt,

@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"ecoee/pkg/ecoee/domain"
+	"ecoee/pkg/ecoee/domain/model"
 	"ecoee/pkg/ecoee/infrastructure/db/dto"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,7 +21,7 @@ func NewCampaignRepository(db *mongo.Database) *CampaignRepository {
 	return &CampaignRepository{db: db}
 }
 
-func (r *CampaignRepository) Create(ctx context.Context, campaign domain.Campaign) (domain.Campaign, error) {
+func (r *CampaignRepository) Create(ctx context.Context, campaign model.Campaign) (model.Campaign, error) {
 	collection := r.db.Collection(_campaignCollection)
 	campaignDTO := &dto.Campaign{
 		ID:             campaign.ID,
@@ -32,13 +32,13 @@ func (r *CampaignRepository) Create(ctx context.Context, campaign domain.Campaig
 	}
 	_, err := collection.InsertOne(ctx, campaignDTO)
 	if err != nil {
-		return domain.Campaign{}, errors.Wrapf(err, "failed to insert campaign: %v", campaign)
+		return model.Campaign{}, errors.Wrapf(err, "failed to insert campaign: %v", campaign)
 	}
 
 	return campaign, nil
 }
 
-func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]domain.Campaign, error) {
+func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]model.Campaign, error) {
 	collection := r.db.Collection(_campaignCollection)
 	filter := dto.Campaign{OrganizationID: orgID}
 	cursor, err := collection.Find(ctx, filter)
@@ -47,13 +47,13 @@ func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]domain.C
 	}
 	defer cursor.Close(ctx)
 
-	var campaigns []domain.Campaign
+	var campaigns []model.Campaign
 	for cursor.Next(ctx) {
 		campaign := &dto.Campaign{}
 		if err := cursor.Decode(campaign); err != nil {
 			return nil, errors.Wrap(err, "failed to decode campaign")
 		}
-		campaigns = append(campaigns, domain.Campaign{
+		campaigns = append(campaigns, model.Campaign{
 			ID:             campaign.ID,
 			Name:           campaign.Name,
 			OrganizationID: campaign.OrganizationID,

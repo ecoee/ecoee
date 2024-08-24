@@ -1,4 +1,4 @@
-package domain
+package model
 
 import (
 	"context"
@@ -29,7 +29,7 @@ type OrganizationUser struct {
 
 type PointRepository interface {
 	ListUserPoints(ctx context.Context, orgID, userID string) ([]UserPoint, error)
-	ListOrgDonationRankers(ctx context.Context, orgID string) ([]OrganizationUser, error)
+	ListOrgPoints(ctx context.Context, orgID string) ([]OrgPoint, error)
 	SaveUserPoint(ctx context.Context, point UserPoint) error
 	SaveOrgPoint(ctx context.Context, point OrgPoint) error
 }

@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/vertexai/genai"
 	"context"
 	"ecoee/pkg/config"
-	"ecoee/pkg/ecoee/domain"
+	"ecoee/pkg/ecoee/domain/model"
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/pkg/errors"
@@ -39,7 +39,7 @@ func NewRepository(ctx context.Context, config config.Config) (*Repository, erro
 	return &Repository{gemini: gemini}, nil
 }
 
-func (g *Repository) Assess(ctx context.Context, request domain.RecycleAssessmentRequest) (domain.RecycleAssessmentResponse, error) {
+func (g *Repository) Assess(ctx context.Context, request model.RecycleAssessmentRequest) (model.RecycleAssessmentResponse, error) {
 	img := genai.ImageData(request.Format, request.Data)
 
 	prompt := genai.Text("" +
@@ -54,7 +54,7 @@ func (g *Repository) Assess(ctx context.Context, request domain.RecycleAssessmen
 	resp, err := g.gemini.GenerateContent(ctx, img, prompt)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to generate content %v", errors.WithStack(err)))
-		return domain.RecycleAssessmentResponse{}, err
+		return model.RecycleAssessmentResponse{}, err
 	}
 
 	var answer genai.Text
@@ -70,10 +70,10 @@ func (g *Repository) Assess(ctx context.Context, request domain.RecycleAssessmen
 	response := &GeminiResponse{}
 	if err := json.Unmarshal([]byte(answer), response); err != nil {
 		slog.Error(fmt.Sprintf("failed to unmarshal response %v", errors.WithStack(err)))
-		return domain.RecycleAssessmentResponse{}, err
+		return model.RecycleAssessmentResponse{}, err
 	}
 
-	return domain.RecycleAssessmentResponse{
+	return model.RecycleAssessmentResponse{
 		Result: response.Result,
 	}, nil
 }

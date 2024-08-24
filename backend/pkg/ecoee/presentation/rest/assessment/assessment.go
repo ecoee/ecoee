@@ -1,7 +1,7 @@
 package assessment
 
 import (
-	"ecoee/pkg/ecoee/domain"
+	"ecoee/pkg/ecoee/domain/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log/slog"
@@ -17,11 +17,11 @@ type RecycleAssessmentResponse struct {
 }
 
 type Registry struct {
-	assessor domain.Assessor
+	assessor model.Assessor
 }
 
 func NewRegistry(
-	assessor domain.Assessor,
+	assessor model.Assessor,
 ) *Registry {
 	return &Registry{
 		assessor: assessor,
@@ -62,7 +62,7 @@ func (r *Registry) assessRecycle(ctx *gin.Context) {
 	}
 
 	// extract format without 'image/' prefix
-	rar := domain.RecycleAssessmentRequest{
+	rar := model.RecycleAssessmentRequest{
 		Format: extractImageFormat(mimeType),
 		Data:   data,
 	}

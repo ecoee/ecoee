@@ -1,7 +1,7 @@
 package point
 
 import (
-	"ecoee/pkg/ecoee/domain"
+	"ecoee/pkg/ecoee/domain/model"
 	"ecoee/pkg/ecoee/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -21,14 +21,14 @@ type DeductPointRequest struct {
 }
 
 type Registry struct {
-	userRepository         domain.UserRepository
-	organizationRepository domain.OrganizationRepository
-	pointRepository        domain.PointRepository
+	userRepository         model.UserRepository
+	organizationRepository model.OrganizationRepository
+	pointRepository        model.PointRepository
 }
 
-func NewRegistry(userRepository domain.UserRepository,
-	organizationRepository domain.OrganizationRepository,
-	pointRepository domain.PointRepository,
+func NewRegistry(userRepository model.UserRepository,
+	organizationRepository model.OrganizationRepository,
+	pointRepository model.PointRepository,
 ) *Registry {
 	return &Registry{
 		userRepository:         userRepository,
@@ -55,7 +55,7 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 	user, err := r.userRepository.GetByID(ctx, orgId, userId)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to get user: %v", err))
-		if errors.Is(err, domain.ErrUserNotFound) {
+		if errors.Is(err, model.ErrUserNotFound) {
 			ctx.Status(http.StatusNotFound)
 			return
 		}
@@ -66,7 +66,7 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 	organization, err := r.organizationRepository.GetByID(ctx, orgId)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to get organization: %v", err))
-		if errors.Is(err, domain.ErrOrganizationNotFound) {
+		if errors.Is(err, model.ErrOrganizationNotFound) {
 			ctx.Status(http.StatusNotFound)
 			return
 		}
@@ -79,8 +79,8 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 	slog.Info("validated")
 
 	if savePointReq.UserPointAmount > 0 {
-		userPoint := domain.UserPoint{
-			Point: domain.Point{
+		userPoint := model.UserPoint{
+			Point: model.Point{
 				ID:        uuid.NewString(),
 				Amount:    savePointReq.UserPointAmount,
 				CreatedAt: util.Now(),
@@ -104,8 +104,8 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 	}
 
 	if savePointReq.OrganizationPointAmount > 0 {
-		orgPoint := domain.OrgPoint{
-			Point: domain.Point{
+		orgPoint := model.OrgPoint{
+			Point: model.Point{
 				ID:        uuid.NewString(),
 				Amount:    savePointReq.OrganizationPointAmount,
 				CreatedAt: util.Now(),
@@ -121,7 +121,7 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 			return
 		}
 
-		_, err = r.organizationRepository.Save(ctx, organization)
+		_, err = r.organizationRepository.Update(ctx, organization)
 		if err != nil {
 			slog.Error(fmt.Sprintf("failed to save organization: %v", err))
 			ctx.Status(http.StatusInternalServerError)
@@ -144,7 +144,7 @@ func (r *Registry) deductUserPoint(ctx *gin.Context) {
 	userId := ctx.Param("userId")
 	user, err := r.userRepository.GetByID(ctx, orgId, userId)
 	if err != nil {
-		if errors.Is(err, domain.ErrUserNotFound) {
+		if errors.Is(err, model.ErrUserNotFound) {
 			ctx.Status(http.StatusNotFound)
 			return
 		}
@@ -154,8 +154,8 @@ func (r *Registry) deductUserPoint(ctx *gin.Context) {
 	}
 
 	// 차감은 user 만 있음 org는 없음
-	userPoint := domain.UserPoint{
-		Point: domain.Point{
+	userPoint := model.UserPoint{
+		Point: model.Point{
 			ID:        uuid.NewString(),
 			Amount:    deductReq.Amount,
 			CreatedAt: util.Now(),

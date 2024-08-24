@@ -1,7 +1,7 @@
 package user
 
 import (
-	"ecoee/pkg/ecoee/domain"
+	"ecoee/pkg/ecoee/domain/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -36,12 +36,12 @@ type DeductPointRequest struct {
 }
 
 type Registry struct {
-	userRepository         domain.UserRepository
-	organizationRepository domain.OrganizationRepository
+	userRepository         model.UserRepository
+	organizationRepository model.OrganizationRepository
 }
 
-func NewRegistry(userRepository domain.UserRepository,
-	organizationRepository domain.OrganizationRepository,
+func NewRegistry(userRepository model.UserRepository,
+	organizationRepository model.OrganizationRepository,
 ) *Registry {
 	return &Registry{
 		userRepository:         userRepository,
@@ -65,7 +65,7 @@ func (r *Registry) createUser(ctx *gin.Context) {
 	org, err := r.organizationRepository.GetByID(ctx, orgId)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to get organization: %v", err))
-		if errors.Is(err, domain.ErrOrganizationNotFound) {
+		if errors.Is(err, model.ErrOrganizationNotFound) {
 			ctx.Status(http.StatusNotFound)
 			return
 		}
@@ -74,7 +74,7 @@ func (r *Registry) createUser(ctx *gin.Context) {
 		return
 	}
 
-	user := domain.User{
+	user := model.User{
 		ID:               uuid.New().String(),
 		Name:             u.Name,
 		OrganizationID:   org.ID,
@@ -96,7 +96,7 @@ func (r *Registry) getUserProfile(ctx *gin.Context) {
 
 	user, err := r.userRepository.GetByID(ctx, orgId, userId)
 	if err != nil {
-		if errors.Is(err, domain.ErrUserNotFound) {
+		if errors.Is(err, model.ErrUserNotFound) {
 			ctx.Status(http.StatusNotFound)
 			return
 		}
@@ -108,7 +108,7 @@ func (r *Registry) getUserProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, fromDomainUser(user))
 }
 
-func fromDomainUser(u domain.User) User {
+func fromDomainUser(u model.User) User {
 	return User{
 		ID:               u.ID,
 		Name:             u.Name,

@@ -1,7 +1,8 @@
 package organization
 
 import (
-	"ecoee/pkg/ecoee/domain"
+	"ecoee/pkg/ecoee/domain/model"
+	"ecoee/pkg/ecoee/domain/service"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -30,12 +31,14 @@ type OrganizationUser struct {
 }
 
 type Registry struct {
-	organizationRepository domain.OrganizationRepository
+	organizationRepository model.OrganizationRepository
+	pointService           service.PointService
 }
 
-func NewRegistry(organizationRepository domain.OrganizationRepository) *Registry {
+func NewRegistry(organizationRepository model.OrganizationRepository, pointService service.PointService) *Registry {
 	return &Registry{
 		organizationRepository: organizationRepository,
+		pointService:           pointService,
 	}
 }
 
@@ -52,13 +55,13 @@ func (r *Registry) createOrganization(ctx *gin.Context) {
 		return
 	}
 
-	newOrg := domain.Organization{
+	newOrg := model.Organization{
 		ID:                   uuid.NewString(),
 		Name:                 req.Name,
 		TotalDonationPoint:   0,
 		MinimumDonationPoint: req.MinimumDonationPoint,
 	}
-	org, err := r.organizationRepository.Save(ctx, newOrg)
+	org, err := r.organizationRepository.Create(ctx, newOrg)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to save organization: %v", err))
 		ctx.Status(http.StatusInternalServerError)
@@ -73,7 +76,7 @@ func (r *Registry) getOrganization(ctx *gin.Context) {
 	orgID := ctx.Param("orgId")
 	org, err := r.organizationRepository.GetByID(ctx, orgID)
 	if err != nil {
-		if errors.Is(err, domain.ErrOrganizationNotFound) {
+		if errors.Is(err, model.ErrOrganizationNotFound) {
 			ctx.Status(http.StatusNotFound)
 			return
 		}
@@ -83,29 +86,36 @@ func (r *Registry) getOrganization(ctx *gin.Context) {
 		return
 	}
 
-	dto := fromDomainOrganization(org)
+	resp, err := r.pointService.ListOrganizationPointRankers(ctx, orgID)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to get organization point rankers: %v", err))
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	dto := fromDomainOrganization(org, resp)
 	ctx.JSON(http.StatusOK, dto)
 }
 
-func fromDomainOrganization(org domain.Organization) Organization {
+func fromDomainOrganization(org model.Organization, resp service.OrganizationPointRankerQueryResponse) Organization {
 	return Organization{
 		ID:                   org.ID,
 		Name:                 org.Name,
 		TotalDonationPoint:   org.TotalDonationPoint,
 		MinimumDonationPoint: org.MinimumDonationPoint,
-		//DonationRanking:      fromDomainDonationRanking(org.DonationRanking),
+		DonationRanking:      fromDomainDonationRanking(resp),
 	}
 }
 
-//func fromDomainDonationRanking(ranking domain.DonationRanking) []OrganizationUser {
-//	orgUsers := make([]OrganizationUser, 0, len(ranking.OrganizationUsers))
-//	for _, user := range ranking.OrganizationUsers {
-//		orgUsers = append(orgUsers, OrganizationUser{
-//			UserID:           user.User.ID,
-//			UserName:         user.User.Name,
-//			AccumulatedPoint: user.AccumulatedPoint,
-//		})
-//	}
-//
-//	return orgUsers
-//}
+func fromDomainDonationRanking(resp service.OrganizationPointRankerQueryResponse) []OrganizationUser {
+	orgUsers := make([]OrganizationUser, 0, len(resp.Rankers))
+	for _, user := range resp.Rankers {
+		orgUsers = append(orgUsers, OrganizationUser{
+			UserID:           user.User.ID,
+			UserName:         user.User.Name,
+			AccumulatedPoint: user.AccumulatedPoint,
+		})
+	}
+
+	return orgUsers
+}

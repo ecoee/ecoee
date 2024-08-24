@@ -1,4 +1,4 @@
-package domain
+package model
 
 import "context"
 
@@ -15,5 +15,6 @@ func (o *Organization) AddPoint(point OrgPoint) {
 
 type OrganizationRepository interface {
 	GetByID(ctx context.Context, orgID string) (Organization, error)
-	Save(ctx context.Context, organization Organization) (Organization, error)
+	Create(ctx context.Context, organization Organization) (Organization, error)
+	Update(ctx context.Context, organization Organization) (Organization, error)
 }
