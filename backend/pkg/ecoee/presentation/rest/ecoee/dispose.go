@@ -2,7 +2,7 @@ package ecoee
 
 import (
 	"ecoee/pkg/domain/model"
-	"ecoee/pkg/infrastructure/dispose"
+	"ecoee/pkg/ecoee/infrastructure/dispose"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log/slog"
