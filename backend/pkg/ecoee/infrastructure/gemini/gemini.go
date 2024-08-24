@@ -1,20 +1,25 @@
 package gemini
 
 import (
+	"cloud.google.com/go/vertexai/genai"
 	"context"
 	"ecoee/pkg/config"
 	"ecoee/pkg/ecoee/domain"
-	"encoding/json"
 	"fmt"
+	"github.com/goccy/go-json"
 	"github.com/pkg/errors"
 	"google.golang.org/api/option"
 	"log/slog"
-
-	"cloud.google.com/go/vertexai/genai"
 )
 
+type GeminiResponse struct {
+	Result int `json:"result"`
+}
+
 const (
-	_modelName = "gemini-1.5-flash-001"
+	//_modelName      = "gemini-1.5-flash-001"
+	_modelName      = "gemini-1.0-pro-vision-001"
+	_credentialPath = "./service-account.json"
 )
 
 type Repository struct {
@@ -22,7 +27,7 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
-	opt := option.WithAPIKey(config.GCPConfig.APIKey)
+	opt := option.WithCredentialsFile(_credentialPath)
 	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location, opt)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create GenAI client %v", errors.WithStack(err)))
@@ -37,32 +42,38 @@ func NewRepository(ctx context.Context, config config.Config) (*Repository, erro
 func (g *Repository) Assess(ctx context.Context, request domain.RecycleAssessmentRequest) (domain.RecycleAssessmentResponse, error) {
 	img := genai.ImageData(request.Format, request.Data)
 
-	// 1. 플라스틱 병을 인식 시킬 것
-	// 2. 한국의 재활용 기준에 적합한지
-	// 3. 불가능한 경우는 사용자가 취해야할 행동을 영어로 안내할 것
-	// 4. 가능하다면 "OK" 문자열만 응답으로 반환할 것
 	prompt := genai.Text("" +
-		"I want to recycle this plastic bottle." +
-		"1. Please identify this plastic bottle." +
-		"2. Is it suitable for recycling in Korea?" +
-		"3. If not, please tell the user what to do in English." +
-		"4. If possible, return only the string 'OK' as a response.")
+		" If this waste image has no plastic label and any content inside," +
+		" then give json formatted result" +
+		" based on the following criteria:\n" +
+		" 1. Positive(Plastic label removed and any content inside)" +
+		" 2: Negative(Plastic label not removed or some content inside)" +
+		" 3: I don't know\n" +
+		" NOTE: Please provide the result in the following format without any description.\n" +
+		"   {\"result\": 1 }\"\n")
 	resp, err := g.gemini.GenerateContent(ctx, img, prompt)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to generate content %v", errors.WithStack(err)))
 		return domain.RecycleAssessmentResponse{}, err
 	}
 
-	rb, err := json.MarshalIndent(resp, "", "  ")
-	if err != nil {
-		slog.Error(fmt.Sprintf("failed to marshal response %v", errors.WithStack(err)))
+	var answer genai.Text
+	for _, r := range resp.Candidates {
+		for _, p := range r.Content.Parts {
+			answer = p.(genai.Text)
+			break
+		}
+	}
+
+	slog.Info(fmt.Sprintf("answer: %s", answer))
+
+	response := &GeminiResponse{}
+	if err := json.Unmarshal([]byte(answer), response); err != nil {
+		slog.Error(fmt.Sprintf("failed to unmarshal response %v", errors.WithStack(err)))
 		return domain.RecycleAssessmentResponse{}, err
 	}
 
-	slog.Info(fmt.Sprintf("response: %s", rb))
-
 	return domain.RecycleAssessmentResponse{
-		IsSuccess: true,
-		Feedback:  string(rb),
+		Result: response.Result,
 	}, nil
 }

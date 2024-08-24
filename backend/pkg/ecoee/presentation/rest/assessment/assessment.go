@@ -13,8 +13,7 @@ type RecycleAssessmentRequest struct {
 }
 
 type RecycleAssessmentResponse struct {
-	IsSuccess bool   `json:"is_success"`
-	Feedback  string `json:"feedback"`
+	Result int `json:"result"`
 }
 
 type Registry struct {
@@ -56,8 +55,15 @@ func (r *Registry) assessRecycle(ctx *gin.Context) {
 		return
 	}
 
+	mimeType := file.Header.Get("Content-Type")
+	if mimeType != "image/jpeg" && mimeType != "image/png" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+		return
+	}
+
+	// extract format without 'image/' prefix
 	rar := domain.RecycleAssessmentRequest{
-		Format: "jpeg",
+		Format: extractImageFormat(mimeType),
 		Data:   data,
 	}
 	resp, err := r.assessor.Assess(ctx, rar)
@@ -67,7 +73,10 @@ func (r *Registry) assessRecycle(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, RecycleAssessmentResponse{
-		IsSuccess: resp.IsSuccess,
-		Feedback:  resp.Feedback,
+		Result: resp.Result,
 	})
+}
+
+func extractImageFormat(mimeType string) string {
+	return mimeType[6:]
 }

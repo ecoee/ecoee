@@ -8,8 +8,8 @@ type RecycleAssessmentRequest struct {
 }
 
 type RecycleAssessmentResponse struct {
-	IsSuccess bool
-	Feedback  string
+	Result   int
+	Feedback string
 }
 
 type Assessor interface {

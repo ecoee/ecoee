@@ -69,7 +69,7 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault(mongoDBHost, "ecoee.ykgcpvf.mongodb.net")
 	v.SetDefault(mongoDBUserName, "ecoee")
 	v.SetDefault(mongoDBPassword, "ecoee")
-	v.SetDefault(gcpAPIKey, "AIzaSyCjZcxY4Q1AdDgFxR83e5j6cgfrP4duz_o")
+	v.SetDefault(gcpAPIKey, "AIzaSyDM5ac41evZaJyP8fpPJ_Vc_K-oZu4p95c")
 	v.SetDefault(vertexAIProjectID, "ecoee-433110")
 	v.SetDefault(vertexAILocation, "asia-northeast3")
 	v.SetDefault(cloudStorageBucketName, "ecoee-assessment")
