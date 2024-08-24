@@ -10,6 +10,7 @@ import (
 	"ecoee/pkg/ecoee/presentation/rest/ecoee"
 	"ecoee/pkg/ecoee/presentation/rest/health"
 	"fmt"
+	"github.com/pkg/errors"
 	"log/slog"
 	"net"
 	"net/http"
@@ -33,14 +34,15 @@ func main() {
 	// init infrastructure layer
 	db, err := mongo.NewDB(ctx, config)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to connect to database: %v", err))
+		slog.Error(fmt.Sprintf("failed to connect to database: %v", errors.WithStack(err)))
 		return
 	}
 
 	disposeRepository := dispose.NewRepository(db)
 	assessRepository, err := gemini.NewRepository(ctx, config)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create assess repository %v", err))
+
+		slog.Error(fmt.Sprintf("failed to create assess repository %v", errors.WithStack(err)))
 		return
 	}
 

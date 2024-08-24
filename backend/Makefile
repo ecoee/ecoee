@@ -14,6 +14,9 @@ test:
 build:
 	docker build -t ecoee:$(GIT_SHA) .
 
+run-go:
+	go run cmd/server/main.go
+
 run:
 	docker run -p 8080:8080 ecoee:$(GIT_SHA)
 

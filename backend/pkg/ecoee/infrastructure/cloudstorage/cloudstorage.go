@@ -5,6 +5,7 @@ import (
 	"context"
 	"ecoee/pkg/config"
 	"fmt"
+	"github.com/pkg/errors"
 	"log/slog"
 )
 
@@ -16,7 +17,7 @@ type Repository struct {
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create storage client %v", err))
+		slog.Error(fmt.Sprintf("failed to create storage client %v", errors.WithStack(err)))
 		return nil, err
 	}
 
@@ -28,12 +29,12 @@ func (r *Repository) Upload(ctx context.Context, objectName string, data []byte)
 	wc := r.bucket.Object(objectName).NewWriter(ctx)
 	wc.ContentType = "application/json"
 	if _, err := wc.Write(data); err != nil {
-		slog.Error(fmt.Sprintf("failed to write object %v", err))
+		slog.Error(fmt.Sprintf("failed to write object %v", errors.WithStack(err)))
 		return "", err
 	}
 
 	if err := wc.Close(); err != nil {
-		slog.Error(fmt.Sprintf("failed to close writer %v", err))
+		slog.Error(fmt.Sprintf("failed to close writer %v", errors.WithStack(err)))
 		return "", err
 	}
 

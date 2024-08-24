@@ -6,6 +6,7 @@ import (
 	"ecoee/pkg/ecoee/domain"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"log/slog"
 
 	"cloud.google.com/go/vertexai/genai"
@@ -22,7 +23,7 @@ type Repository struct {
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
 	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create GenAI client %v", err))
+		slog.Error(fmt.Sprintf("failed to create GenAI client %v", errors.WithStack(err)))
 		return nil, err
 	}
 
@@ -46,13 +47,13 @@ func (g *Repository) Assess(ctx context.Context, request domain.RecycleAssessmen
 		"4. If possible, return only the string 'OK' as a response.")
 	resp, err := g.gemini.GenerateContent(ctx, img, prompt)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to generate content %v", err))
+		slog.Error(fmt.Sprintf("failed to generate content %v", errors.WithStack(err)))
 		return domain.RecycleAssessmentResponse{}, err
 	}
 
 	rb, err := json.MarshalIndent(resp, "", "  ")
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to marshal response %v", err))
+		slog.Error(fmt.Sprintf("failed to marshal response %v", errors.WithStack(err)))
 		return domain.RecycleAssessmentResponse{}, err
 	}
 
