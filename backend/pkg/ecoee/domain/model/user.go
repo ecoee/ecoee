@@ -15,7 +15,7 @@ func (u *User) AddPoint(point UserPoint) {
 }
 
 func (u *User) DeductPoint(point UserPoint) {
-	u.TotalUserPoint -= point.Amount
+	u.TotalUserPoint += point.Amount // point.Amount is negative
 }
 
 type UserRepository interface {

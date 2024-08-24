@@ -158,7 +158,8 @@ func (r *Registry) deductUserPoint(ctx *gin.Context) {
 	userPoint := model.UserPoint{
 		Point: model.Point{
 			ID:        uuid.NewString(),
-			Amount:    deductReq.Amount,
+			Amount:    -deductReq.Amount, // 차감은 -로
+			Title:     deductReq.Title,
 			CreatedAt: util.Now(),
 		},
 		UserID: userId,
