@@ -49,12 +49,16 @@ func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]model.Ca
 		return nil, errors.Wrapf(err, "failed to list campaigns for organization: %s", orgID)
 	}
 	defer cursor.Close(ctx)
-
 	var campaigns []model.Campaign
 	for cursor.Next(ctx) {
 		campaign := &dto.Campaign{}
 		if err := cursor.Decode(campaign); err != nil {
 			return nil, errors.Wrap(err, "failed to decode campaign")
+		}
+
+		totalVoted, err := r.countVotes(ctx, campaign.ID)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to count votes for campaign: %s", campaign.ID)
 		}
 		campaigns = append(campaigns, model.Campaign{
 			ID:             campaign.ID,
@@ -62,7 +66,7 @@ func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]model.Ca
 			Body:           campaign.Body,
 			OrganizationID: campaign.OrganizationID,
 			ImageURL:       campaign.ImageURL,
-			TotalVoted:     campaign.TotalVoted,
+			TotalVoted:     totalVoted,
 		})
 	}
 
@@ -98,4 +102,22 @@ func (r *CampaignRepository) HasVoted(ctx context.Context, userID string) (bool,
 	}
 
 	return true, nil
+}
+
+func (r *CampaignRepository) countVotes(ctx context.Context, campaignID string) (int, error) {
+	collection := r.db.Collection(_campaignVotedUserCollection)
+	cursor, err := collection.Find(ctx, bson.M{
+		"campaign_id": campaignID,
+	})
+	if err != nil {
+		return 0, errors.Wrapf(err, "failed to count votes for campaign: %s", campaignID)
+	}
+	defer cursor.Close(ctx)
+
+	var count int
+	for cursor.Next(ctx) {
+		count++
+	}
+
+	return count, nil
 }

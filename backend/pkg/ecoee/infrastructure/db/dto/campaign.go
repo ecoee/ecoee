@@ -1,7 +1,7 @@
 package dto
 
 type Campaign struct {
-	ID             string `bson:"id"`
+	ID             string `bson:"campaign_id"`
 	OrganizationID string `bson:"organization_id"`
 	Title          string `bson:"title"`
 	Body           string `bson:"body"`
