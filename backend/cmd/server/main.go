@@ -4,10 +4,12 @@ import (
 	"context"
 	"ecoee/pkg/config"
 	"ecoee/pkg/ecoee/domain/service"
+	"ecoee/pkg/ecoee/infrastructure/cloudstorage"
 	db2 "ecoee/pkg/ecoee/infrastructure/db"
 	"ecoee/pkg/ecoee/infrastructure/db/mongo"
 	"ecoee/pkg/ecoee/infrastructure/gemini"
 	"ecoee/pkg/ecoee/presentation/rest/assessment"
+	"ecoee/pkg/ecoee/presentation/rest/campaign"
 	"ecoee/pkg/ecoee/presentation/rest/health"
 	"ecoee/pkg/ecoee/presentation/rest/organization"
 	"ecoee/pkg/ecoee/presentation/rest/point"
@@ -41,10 +43,16 @@ func main() {
 		return
 	}
 
+	cloudStroageRepository, err := cloudstorage.NewRepository(ctx, config)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to create cloud storage repository %v", errors.WithStack(err)))
+		return
+	}
 	pointRepository := db2.NewPointRepository(db)
 	userRepository := db2.NewUserRepository(db)
 	organizationRepository := db2.NewOrganizationRepository(db)
 	assessRepository, err := gemini.NewRepository(ctx, config)
+	campaignRepository := db2.NewCampaignRepository(db)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create assess repository %v", errors.WithStack(err)))
 		return
@@ -59,6 +67,7 @@ func main() {
 	organizationRegistry := organization.NewRegistry(organizationRepository, pointService)
 	assessmentRegistry := assessment.NewRegistry(assessRepository)
 	pointRegistry := point.NewRegistry(userRepository, organizationRepository, pointRepository)
+	campaignRegistry := campaign.NewRegistry(campaignRepository, userRepository, cloudStroageRepository)
 
 	//init gin
 	r := gin.New()
@@ -69,6 +78,7 @@ func main() {
 	organizationRegistry.Register(r)
 	assessmentRegistry.Register(r)
 	pointRegistry.Register(r)
+	campaignRegistry.Registry(r)
 	serverPort := ":8080"
 
 	srv := &http.Server{

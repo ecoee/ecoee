@@ -25,7 +25,8 @@ func (r *CampaignRepository) Create(ctx context.Context, campaign model.Campaign
 	collection := r.db.Collection(_campaignCollection)
 	campaignDTO := &dto.Campaign{
 		ID:             campaign.ID,
-		Name:           campaign.Name,
+		Title:          campaign.Title,
+		Body:           campaign.Body,
 		OrganizationID: campaign.OrganizationID,
 		ImageURL:       campaign.ImageURL,
 		TotalVoted:     0,
@@ -55,7 +56,8 @@ func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]model.Ca
 		}
 		campaigns = append(campaigns, model.Campaign{
 			ID:             campaign.ID,
-			Name:           campaign.Name,
+			Title:          campaign.Title,
+			Body:           campaign.Body,
 			OrganizationID: campaign.OrganizationID,
 			ImageURL:       campaign.ImageURL,
 			TotalVoted:     campaign.TotalVoted,

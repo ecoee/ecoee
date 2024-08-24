@@ -6,7 +6,12 @@ import (
 	"ecoee/pkg/config"
 	"fmt"
 	"github.com/pkg/errors"
+	"google.golang.org/api/option"
 	"log/slog"
+)
+
+const (
+	_credentialPath = "./storage-service-account.json"
 )
 
 type Repository struct {
@@ -15,7 +20,8 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
-	client, err := storage.NewClient(ctx)
+	opt := option.WithCredentialsFile(_credentialPath)
+	client, err := storage.NewClient(ctx, opt)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create storage client %v", errors.WithStack(err)))
 		return nil, err
@@ -25,9 +31,9 @@ func NewRepository(ctx context.Context, config config.Config) (*Repository, erro
 	return &Repository{bucket: bucket, bucketName: config.GCPConfig.CloudStorageConfig.BucketName}, nil
 }
 
-func (r *Repository) Upload(ctx context.Context, objectName string, data []byte) (string, error) {
+func (r *Repository) Upload(ctx context.Context, objectName, contentType string, data []byte) (string, error) {
 	wc := r.bucket.Object(objectName).NewWriter(ctx)
-	wc.ContentType = "application/json"
+	wc.ContentType = contentType
 	if _, err := wc.Write(data); err != nil {
 		slog.Error(fmt.Sprintf("failed to write object %v", errors.WithStack(err)))
 		return "", err
@@ -38,6 +44,6 @@ func (r *Repository) Upload(ctx context.Context, objectName string, data []byte)
 		return "", err
 	}
 
-	imageURL := r.bucketName + "/" + objectName
+	imageURL := "https://storage.googleapis.com/" + r.bucketName + "/" + objectName
 	return imageURL, nil
 }

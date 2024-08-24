@@ -4,8 +4,9 @@ import "context"
 
 type Campaign struct {
 	ID             string
-	Name           string
 	OrganizationID string
+	Title          string
+	Body           string
 	ImageURL       string
 	TotalVoted     int
 }

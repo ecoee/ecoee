@@ -2,8 +2,9 @@ package dto
 
 type Campaign struct {
 	ID             string `bson:"id"`
-	Name           string `bson:"name"`
 	OrganizationID string `bson:"organization_id"`
+	Title          string `bson:"title"`
+	Body           string `bson:"body"`
 	ImageURL       string `bson:"image_url"`
 	TotalVoted     int    `bson:"total_voted"`
 }
