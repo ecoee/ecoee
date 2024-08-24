@@ -14,7 +14,7 @@ import (
 type SavePointRequest struct {
 	UserPointAmount         int    `json:"user_point_amount"`
 	OrganizationPointAmount int    `json:"organization_point_amount"`
-	Title                   string `json:"title"`
+	Title                   string `json:"title" binding:"required"`
 }
 
 type DeductPointRequest struct {
@@ -77,9 +77,6 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 	}
 
 	// validated
-
-	slog.Info("validated")
-
 	if savePointReq.UserPointAmount > 0 {
 		userPoint := model.UserPoint{
 			Point: model.Point{
