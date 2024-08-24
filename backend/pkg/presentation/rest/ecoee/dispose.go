@@ -30,7 +30,8 @@ func NewRegistry(disposeRepository *dispose.Repository) *Registry {
 }
 
 func (r *Registry) Register(router *gin.Engine) {
-	router.GET("/base", r.base)
+	router.GET("/", r.base)
+	router.POST("/dispose", r.dispose)
 }
 
 func (r *Registry) base(ctx *gin.Context) {
