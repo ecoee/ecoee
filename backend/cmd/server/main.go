@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"ecoee/pkg/config"
+	db2 "ecoee/pkg/ecoee/infrastructure/db"
 	"ecoee/pkg/ecoee/infrastructure/db/mongo"
-	"ecoee/pkg/ecoee/infrastructure/dispose"
 	"ecoee/pkg/ecoee/infrastructure/gemini"
 	"ecoee/pkg/ecoee/presentation/rest/assessment"
-	"ecoee/pkg/ecoee/presentation/rest/ecoee"
 	"ecoee/pkg/ecoee/presentation/rest/health"
+	"ecoee/pkg/ecoee/presentation/rest/organization"
+	"ecoee/pkg/ecoee/presentation/rest/point"
+	"ecoee/pkg/ecoee/presentation/rest/user"
 	"fmt"
 	"github.com/pkg/errors"
 	"log/slog"
@@ -38,26 +40,31 @@ func main() {
 		return
 	}
 
-	disposeRepository := dispose.NewRepository(db)
+	pointRepository := db2.NewPointRepository(db)
+	userRepository := db2.NewUserRepository(db)
+	organizationRepository := db2.NewOrganizationRepository(db)
 	assessRepository, err := gemini.NewRepository(ctx, config)
 	if err != nil {
-
 		slog.Error(fmt.Sprintf("failed to create assess repository %v", errors.WithStack(err)))
 		return
 	}
 
 	// init presentation layer
 	healthRegistry := health.NewRegistry()
+	userRegistry := user.NewRegistry(userRepository, organizationRepository)
+	organizationRegistry := organization.NewRegistry(organizationRepository)
 	assessmentRegistry := assessment.NewRegistry(assessRepository)
-	disposeRegistry := ecoee.NewRegistry(disposeRepository)
+	pointRegistry := point.NewRegistry(userRepository, organizationRepository, pointRepository)
 
 	//init gin
 	r := gin.New()
 	r.Use(gin.Recovery())
 
 	healthRegistry.Register(r)
-	disposeRegistry.Register(r)
+	userRegistry.Register(r)
+	organizationRegistry.Register(r)
 	assessmentRegistry.Register(r)
+	pointRegistry.Register(r)
 	serverPort := ":8080"
 
 	srv := &http.Server{
