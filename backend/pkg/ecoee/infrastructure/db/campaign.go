@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	_campaignCollection     = "campaign"
-	_campaignUserCollection = "campaign_user"
+	_campaignCollection          = "campaign"
+	_campaignVotedUserCollection = "campaign_voted_user"
 )
 
 type CampaignRepository struct {
@@ -70,10 +70,9 @@ func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]model.Ca
 }
 
 func (r *CampaignRepository) Vote(ctx context.Context, campaignID, userID string) error {
-	collection := r.db.Collection(_campaignUserCollection)
+	collection := r.db.Collection(_campaignVotedUserCollection)
 	campaignVotedUser := &dto.CampaignVotedUser{
-		CampaignID: campaignID,
-		UserID:     userID,
+		UserID: userID,
 	}
 	_, err := collection.InsertOne(ctx, campaignVotedUser)
 	if err != nil {
@@ -84,10 +83,9 @@ func (r *CampaignRepository) Vote(ctx context.Context, campaignID, userID string
 }
 
 func (r *CampaignRepository) HasVoted(ctx context.Context, campaignID, userID string) (bool, error) {
-	collection := r.db.Collection(_campaignUserCollection)
+	collection := r.db.Collection(_campaignVotedUserCollection)
 	filter := dto.CampaignVotedUser{
-		CampaignID: campaignID,
-		UserID:     userID,
+		UserID: userID,
 	}
 	res := &dto.CampaignVotedUser{}
 	if err := collection.FindOne(ctx, filter).Decode(res); err != nil {
