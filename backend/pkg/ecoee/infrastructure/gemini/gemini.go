@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
+	"google.golang.org/api/option"
 	"log/slog"
 
 	"cloud.google.com/go/vertexai/genai"
@@ -21,6 +22,7 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
+	option.WithAPIKey()
 	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create GenAI client %v", errors.WithStack(err)))

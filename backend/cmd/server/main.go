@@ -48,7 +48,6 @@ func main() {
 
 	// init presentation layer
 	healthRegistry := health.NewRegistry()
-
 	assessmentRegistry := assessment.NewRegistry(assessRepository)
 	disposeRegistry := ecoee.NewRegistry(disposeRepository)
 
