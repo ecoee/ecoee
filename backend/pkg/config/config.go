@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 	"log/slog"
 )
@@ -36,7 +37,7 @@ func NewConfig(v *viper.Viper) Config {
 }
 
 func (c Config) Log() {
-	slog.Info("config=", c)
+	slog.Info(fmt.Sprintf("config=%v", c))
 }
 
 func setDefaults(v *viper.Viper) {
