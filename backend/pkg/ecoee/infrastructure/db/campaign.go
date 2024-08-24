@@ -5,6 +5,7 @@ import (
 	"ecoee/pkg/ecoee/domain/model"
 	"ecoee/pkg/ecoee/infrastructure/db/dto"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -41,8 +42,9 @@ func (r *CampaignRepository) Create(ctx context.Context, campaign model.Campaign
 
 func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]model.Campaign, error) {
 	collection := r.db.Collection(_campaignCollection)
-	filter := dto.Campaign{OrganizationID: orgID}
-	cursor, err := collection.Find(ctx, filter)
+	cursor, err := collection.Find(ctx, bson.M{
+		"organization_id": orgID,
+	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to list campaigns for organization: %s", orgID)
 	}
