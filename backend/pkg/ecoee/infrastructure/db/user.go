@@ -26,10 +26,11 @@ func NewUserRepository(db *mongo.Database) *UserRepository {
 func (r *UserRepository) Save(ctx context.Context, user model.User) (model.User, error) {
 	collection := r.db.Collection(_userCollection)
 	userDTO := dto.User{
-		ID:             user.ID,
-		Name:           user.Name,
-		OrganizationID: user.OrganizationID,
-		TotalUserPoint: user.TotalUserPoint,
+		ID:               user.ID,
+		Name:             user.Name,
+		OrganizationID:   user.OrganizationID,
+		OrganizationName: user.OrganizationName,
+		TotalUserPoint:   user.TotalUserPoint,
 	}
 	filter := bson.M{"organization_id": user.OrganizationID, "user_id": user.ID}
 	if err := collection.FindOneAndUpdate(ctx, filter, bson.M{
