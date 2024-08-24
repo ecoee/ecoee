@@ -4,26 +4,15 @@ import (
 	"ecoee/pkg/domain/model"
 	"ecoee/pkg/infrastructure/dispose"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
-	"github.com/go-playground/validator/v10"
 )
 
 type Dispose struct {
 	ID    string `json:"id"`
-	Name  string `json:"name" validate:"required"`
-	Count int    `json:"count" validate:"required"`
-}
-
-func (d *Dispose) Bind(r *http.Request) error {
-	validator := validator.New()
-	if err := validator.Struct(d); err != nil {
-		return err
-	}
-	return nil
+	Name  string `json:"name" binding:"required"`
+	Count int    `json:"count" binding:"required"`
 }
 
 type Response struct {
@@ -40,39 +29,35 @@ func NewRegistry(disposeRepository *dispose.Repository) *Registry {
 	}
 }
 
-func (r *Registry) Register(router *chi.Mux) {
-	router.Group(func(router chi.Router) {
-		router.Get("/", r.base)
-	})
-	router.Group(func(router chi.Router) {
-		router.Post("/dispose", r.dispose)
-	})
+func (r *Registry) Register(router *gin.Engine) {
+	router.GET("/base", r.base)
 }
 
-func (r *Registry) base(w http.ResponseWriter, req *http.Request) {
-	render.JSON(w, req, Response{Message: "ecoee is working fine 👍"})
+func (r *Registry) base(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, Response{Message: "ecoee is working fine 👍"})
 }
 
-func (r *Registry) dispose(w http.ResponseWriter, req *http.Request) {
-	dispose := &Dispose{}
-	if err := render.Bind(req, dispose); err != nil {
+func (r *Registry) dispose(ctx *gin.Context) {
+	req := &Dispose{}
+
+	if err := ctx.ShouldBindBodyWithJSON(req); err != nil {
 		slog.Error(fmt.Sprintf("failed to bind request: %v", err))
-		w.WriteHeader(http.StatusBadRequest)
+		ctx.Status(http.StatusBadRequest)
 		return
 	}
 
 	newDispose := model.Dispose{
-		ID:    dispose.ID,
-		Name:  dispose.Name,
-		Count: dispose.Count,
+		ID:    req.ID,
+		Name:  req.Name,
+		Count: req.Count,
 	}
-	result, err := r.disposeRepository.Save(req.Context(), newDispose)
+	result, err := r.disposeRepository.Save(ctx, newDispose)
 	if err != nil {
-		slog.Error(fmt.Sprintf("failed to save dispose: %v", err))
-		w.WriteHeader(http.StatusInternalServerError)
+		slog.Error(fmt.Sprintf("failed to save req: %v", err))
+		ctx.Status(http.StatusInternalServerError)
 		return
 	}
 
 	res := Dispose{ID: result.ID, Name: result.Name, Count: result.Count}
-	render.JSON(w, req, res)
+	_ = ctx.ShouldBindBodyWithJSON(res)
 }
