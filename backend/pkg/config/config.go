@@ -17,9 +17,8 @@ const (
 )
 
 type Config struct {
-	MongoDBConfig      MongoDBConfig      `json:"mongo_db_config"`
-	GCPConfig          GCPConfig          `json:"gcp_config"`
-	CloudStorageConfig CloudStorageConfig `json:"cloud_storage_config"`
+	MongoDBConfig MongoDBConfig `json:"mongo_db_config"`
+	GCPConfig     GCPConfig     `json:"gcp_config"`
 }
 
 type MongoDBConfig struct {

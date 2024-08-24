@@ -20,7 +20,7 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
-	client, err := genai.NewClient(ctx, config.VertexAIConfig.ProjectID, config.VertexAIConfig.Location)
+	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create GenAI client %v", err))
 		return nil, err
