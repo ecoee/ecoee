@@ -40,9 +40,9 @@ func (c Config) Log() {
 }
 
 func setDefaults(v *viper.Viper) {
-	v.SetDefault(mongoDBUserName, "admin")
-	v.SetDefault(mongoDBPassword, "admin")
-	v.SetDefault(mongoDBHost, "localhost")
+	v.SetDefault(mongoDBUserName, "ecoee.ykgcpvf.mongodb.net")
+	v.SetDefault(mongoDBPassword, "ecoee")
+	v.SetDefault(mongoDBHost, "ecoee")
 }
 
 func bindEnvironment(v *viper.Viper) {
