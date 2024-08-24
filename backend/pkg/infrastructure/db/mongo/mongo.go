@@ -52,7 +52,7 @@ func newDBClient(ctx context.Context, config config.Config) (*mongo.Client, erro
 		Password: config.MongoDBConfig.MongoDBPassword,
 	}
 	connectionURI := getConnectionURI(config)
-	slog.Info("mongoDB connectionURI=", connectionURI)
+	slog.Info(fmt.Sprintf("mongoDB connectionURI=%s", connectionURI))
 
 	registryBuilder := bson.NewRegistry()
 	registryBuilder.RegisterTypeMapEntry(bson.TypeEmbeddedDocument, reflect.TypeOf(bson.M{}))
