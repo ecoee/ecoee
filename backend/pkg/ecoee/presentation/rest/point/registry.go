@@ -18,7 +18,7 @@ type SavePointRequest struct {
 }
 
 type DeductPointRequest struct {
-	Amount int    `json:"amount"`
+	Amount int    `json:"amount"` // should be positive
 	Title  string `json:"title"`
 }
 
