@@ -2,8 +2,9 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"log/slog"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -13,7 +14,8 @@ const (
 )
 
 type Config struct {
-	MongoDBConfig MongoDBConfig `json:"mongo_db_config"`
+	MongoDBConfig  MongoDBConfig  `json:"mongo_db_config"`
+	VertexAIConfig VertexAIConfig `json:"vertex_ai_config"`
 }
 
 type MongoDBConfig struct {
@@ -21,6 +23,11 @@ type MongoDBConfig struct {
 	MongoDBPort     string `json:"mongo_db_port"`
 	MongoDBUserName string `json:"mongo_db_user_name"`
 	MongoDBPassword string `json:"mongo_db_password"`
+}
+
+type VertexAIConfig struct {
+	ProjectID string `json:"project_id"`
+	Location  string `json:"location"`
 }
 
 func NewConfig(v *viper.Viper) Config {

@@ -5,11 +5,11 @@ import (
 	"ecoee/pkg/config"
 	"ecoee/pkg/ecoee/infrastructure/db/mongo"
 	"ecoee/pkg/ecoee/infrastructure/dispose"
+	"ecoee/pkg/ecoee/infrastructure/gemini"
+	"ecoee/pkg/ecoee/presentation/rest/assessment"
 	"ecoee/pkg/ecoee/presentation/rest/ecoee"
 	"ecoee/pkg/ecoee/presentation/rest/health"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"log/slog"
 	"net"
 	"net/http"
@@ -17,6 +17,9 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -35,9 +38,16 @@ func main() {
 	}
 
 	disposeRepository := dispose.NewRepository(db)
+	assessRepository, err := gemini.NewRepository(ctx, config)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to create assess repository %v", err))
+		return
+	}
 
 	// init presentation layer
 	healthRegistry := health.NewRegistry()
+
+	assessmentRegistry := assessment.NewRegistry(assessRepository)
 	disposeRegistry := ecoee.NewRegistry(disposeRepository)
 
 	//init gin
@@ -46,6 +56,7 @@ func main() {
 
 	healthRegistry.Register(r)
 	disposeRegistry.Register(r)
+	assessmentRegistry.Register(r)
 	serverPort := ":8080"
 
 	srv := &http.Server{

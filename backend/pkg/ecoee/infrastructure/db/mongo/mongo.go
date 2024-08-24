@@ -4,10 +4,11 @@ import (
 	"context"
 	"ecoee/pkg/config"
 	"fmt"
-	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/bson"
 	"log/slog"
 	"reflect"
+
+	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

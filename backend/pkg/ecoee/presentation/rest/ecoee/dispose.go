@@ -4,9 +4,10 @@ import (
 	"ecoee/pkg/domain/model"
 	"ecoee/pkg/ecoee/infrastructure/dispose"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Dispose struct {
