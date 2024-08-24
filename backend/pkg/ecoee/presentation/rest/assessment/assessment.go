@@ -10,7 +10,7 @@ import (
 )
 
 type RecycleAssessmentRequest struct {
-	ImageURL string `json:"image_url" binding:"required"`
+	Format string `json:"format" binding:"required"`
 }
 
 type RecycleAssessmentResponse struct {
@@ -39,13 +39,32 @@ func (r *Registry) Register(router *gin.Engine) {
 }
 
 func (r *Registry) assessRecycle(ctx *gin.Context) {
-	req := &RecycleAssessmentRequest{}
-	if err := ctx.ShouldBindBodyWithJSON(req); err != nil {
-		ctx.Status(http.StatusBadRequest)
+	file, err := ctx.FormFile("image")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No file is received"})
 		return
 	}
 
-	rar := domain.RecycleAssessmentRequest{ImageURL: req.ImageURL}
+	// convert file to byte
+	src, err := file.Open()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open file"})
+		return
+	}
+	defer src.Close()
+
+	// Read the file
+	data := make([]byte, file.Size)
+	_, err = src.Read(data)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+		return
+	}
+
+	rar := domain.RecycleAssessmentRequest{
+		Format: "jpeg",
+		Data:   data,
+	}
 	resp, err := r.assessor.Assess(ctx, rar)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to assess: %v", err))

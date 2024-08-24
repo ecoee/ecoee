@@ -32,11 +32,7 @@ func NewRepository(ctx context.Context, config config.Config) (*Repository, erro
 }
 
 func (g *Repository) Assess(ctx context.Context, request domain.RecycleAssessmentRequest) (domain.RecycleAssessmentResponse, error) {
-	img := genai.FileData{
-		MIMEType: "image/jpeg",
-		//FileURI: "https://en.wikipedia.org/wiki/File:Botella_de_pl%C3%A1stico_-_PET.jpg",
-		FileURI: request.ImageURL,
-	}
+	img := genai.ImageData(request.Format, request.Data)
 
 	// 1. 플라스틱 병을 인식 시킬 것
 	// 2. 한국의 재활용 기준에 적합한지

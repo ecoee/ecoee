@@ -3,7 +3,8 @@ package domain
 import "context"
 
 type RecycleAssessmentRequest struct {
-	ImageURL string
+	Format string
+	Data   []byte
 }
 
 type RecycleAssessmentResponse struct {
