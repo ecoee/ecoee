@@ -48,7 +48,7 @@ func (r *Registry) Registry(e *gin.Engine) {
 	e.POST("/api/orgs/:orgId/campaigns", r.createCampaign)
 	e.GET("/api/orgs/:orgId/campaigns", r.listCampaigns)
 	e.POST("/api/orgs/:orgId/campaigns/:campaignId/users/:userId/vote", r.vote)
-	e.GET("/api/orgs/:orgId/campaigns/:campaignId/users/:userId/vote", r.getVote)
+	e.GET("/api/orgs/:orgId/campaigns/users/:userId/vote", r.getVote)
 }
 
 func (r *Registry) createCampaign(ctx *gin.Context) {
@@ -142,7 +142,7 @@ func (r *Registry) vote(ctx *gin.Context) {
 		return
 	}
 
-	hasVoted, err := r.campaignRepository.HasVoted(ctx, campaignID, userID)
+	hasVoted, err := r.campaignRepository.HasVoted(ctx, userID)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to check if user has voted: %v", err))
 		ctx.Status(http.StatusInternalServerError)
@@ -169,7 +169,6 @@ func (r *Registry) vote(ctx *gin.Context) {
 
 func (r *Registry) getVote(ctx *gin.Context) {
 	orgID := ctx.Param("orgId")
-	campaignID := ctx.Param("campaignId")
 	userID := ctx.Param("userId")
 
 	_, err := r.userRepository.GetByID(ctx, orgID, userID)
@@ -183,7 +182,7 @@ func (r *Registry) getVote(ctx *gin.Context) {
 		return
 	}
 
-	hasVoted, err := r.campaignRepository.HasVoted(ctx, campaignID, userID)
+	hasVoted, err := r.campaignRepository.HasVoted(ctx, userID)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to check if user has voted: %v", err))
 		ctx.Status(http.StatusInternalServerError)

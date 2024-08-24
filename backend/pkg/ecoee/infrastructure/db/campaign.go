@@ -83,7 +83,7 @@ func (r *CampaignRepository) Vote(ctx context.Context, campaignID, userID string
 	return nil
 }
 
-func (r *CampaignRepository) HasVoted(ctx context.Context, campaignID, userID string) (bool, error) {
+func (r *CampaignRepository) HasVoted(ctx context.Context, userID string) (bool, error) {
 	collection := r.db.Collection(_campaignVotedUserCollection)
 	filter := dto.CampaignVotedUser{
 		UserID: userID,
@@ -94,7 +94,7 @@ func (r *CampaignRepository) HasVoted(ctx context.Context, campaignID, userID st
 			return false, nil
 		}
 
-		return false, errors.Wrapf(err, "failed to check if user: %s has voted campaign: %s", userID, campaignID)
+		return false, errors.Wrapf(err, "failed to check if user: %s has voted campaign", userID)
 	}
 
 	return true, nil
