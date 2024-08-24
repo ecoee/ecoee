@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"ecoee/pkg/config"
-	"ecoee/pkg/ecoee/infrastructure/cloudstorage"
 	"ecoee/pkg/ecoee/infrastructure/db/mongo"
 	"ecoee/pkg/ecoee/infrastructure/dispose"
 	"ecoee/pkg/ecoee/infrastructure/gemini"
@@ -39,11 +38,6 @@ func main() {
 	}
 
 	disposeRepository := dispose.NewRepository(db)
-	cloudStorageRepository, err := cloudstorage.NewRepository(ctx, config)
-	if err != nil {
-		slog.Error(fmt.Sprintf("failed to create cloud storage repository %v", err))
-		return
-	}
 	assessRepository, err := gemini.NewRepository(ctx, config)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create assess repository %v", err))
