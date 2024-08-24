@@ -22,8 +22,8 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
-	option.WithAPIKey()
-	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location)
+	opt := option.WithAPIKey(config.GCPConfig.APIKey)
+	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location, opt)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create GenAI client %v", errors.WithStack(err)))
 		return nil, err
