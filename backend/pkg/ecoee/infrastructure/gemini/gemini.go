@@ -40,8 +40,8 @@ func NewRepository(ctx context.Context, config config.Config) (*Repository, erro
 }
 
 func (g *Repository) Assess(ctx context.Context, request model.RecycleAssessmentRequest) (model.RecycleAssessmentResponse, error) {
+	slog.Info(fmt.Sprintf("assess request: %v", request))
 	img := genai.ImageData(request.Format, request.Data)
-
 	prompt := genai.Text("" +
 		" If this waste image has no plastic label and any content inside," +
 		" then give json formatted result" +
