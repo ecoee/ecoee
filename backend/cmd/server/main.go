@@ -8,6 +8,7 @@ import (
 	"ecoee/pkg/presentation/rest/ecoee"
 	"ecoee/pkg/presentation/rest/health"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"log/slog"
 	"net"
@@ -19,10 +20,6 @@ import (
 
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/httplog"
 )
 
 func main() {
@@ -43,17 +40,9 @@ func main() {
 	healthRegistry := health.NewRegistry()
 	disposeRegistry := ecoee.NewRegistry(disposeRepository)
 
-	r := chi.NewRouter()
-	skipPaths := []string{
-		"/health",
-	}
-
-	logger := httplog.NewLogger("ecoee-http", httplog.Options{
-		JSON: true,
-	})
-	r.Use(httplog.RequestLogger(logger, skipPaths))
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	//init gin
+	r := gin.New()
+	r.Use(gin.Recovery())
 
 	healthRegistry.Register(r)
 	disposeRegistry.Register(r)
