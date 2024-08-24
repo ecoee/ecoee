@@ -17,9 +17,9 @@ type GeminiResponse struct {
 }
 
 const (
-	//_modelName      = "gemini-1.5-flash-001"
-	_modelName      = "gemini-1.0-pro-vision-001"
-	_credentialPath = "./service-account.json"
+	_modelName = "gemini-1.5-pro-001"
+	//_modelName      = "gemini-1.0-pro-vision-001"
+	_credentialPath = "./vertexai-service-account.json"
 )
 
 type Repository struct {
