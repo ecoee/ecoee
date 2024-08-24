@@ -2,6 +2,7 @@ package user
 
 import (
 	"ecoee/pkg/ecoee/domain/model"
+	"ecoee/pkg/ecoee/domain/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -12,40 +13,36 @@ import (
 )
 
 type User struct {
-	ID               string  `json:"id"`
-	Name             string  `json:"name" binding:"required"`
+	ID               string  `json:"user_id"`
+	Name             string  `json:"user_name" binding:"required"`
 	OrganizationID   string  `json:"organization_id"`
 	OrganizationName string  `json:"organization_name"`
+	TotalPoint       int     `json:"total_point"`
 	PointHistory     []Point `json:"point_history"`
 }
 
 type Point struct {
-	ID        string    `json:"id"`
+	ID        string    `json:"point_id"`
 	UserID    string    `json:"user_id"`
+	Title     string    `json:"title"`
 	Amount    int       `json:"amount"`
 	CreatedAt time.Time `json:"created_at"`
-}
-
-type SavePointRequest struct {
-	SelfAmount         int `json:"self_amount"`
-	OrganizationAmount int `json:"organization_amount"`
-}
-
-type DeductPointRequest struct {
-	Amount int `json:"amount"`
 }
 
 type Registry struct {
 	userRepository         model.UserRepository
 	organizationRepository model.OrganizationRepository
+	pointService           service.PointService
 }
 
 func NewRegistry(userRepository model.UserRepository,
 	organizationRepository model.OrganizationRepository,
+	pointService service.PointService,
 ) *Registry {
 	return &Registry{
 		userRepository:         userRepository,
 		organizationRepository: organizationRepository,
+		pointService:           pointService,
 	}
 }
 
@@ -87,7 +84,7 @@ func (r *Registry) createUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, fromDomainUser(createdUser))
+	ctx.JSON(http.StatusCreated, fromDomainUser(createdUser, org, nil))
 }
 
 func (r *Registry) getUserProfile(ctx *gin.Context) {
@@ -105,29 +102,51 @@ func (r *Registry) getUserProfile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, fromDomainUser(user))
+	org, err := r.organizationRepository.GetByID(ctx, orgId)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to get organization: %v", err))
+		if errors.Is(err, model.ErrOrganizationNotFound) {
+			ctx.Status(http.StatusNotFound)
+			return
+		}
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	userPoints, err := r.pointService.ListUserPointDesc(ctx, userId)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to get user point history: %v", err))
+		ctx.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if len(userPoints) > 3 {
+		userPoints = userPoints[:3]
+	}
+	ctx.JSON(http.StatusOK, fromDomainUser(user, org, userPoints))
 }
 
-func fromDomainUser(u model.User) User {
+func fromDomainUser(u model.User, org model.Organization, ups []model.UserPoint) User {
 	return User{
 		ID:               u.ID,
 		Name:             u.Name,
-		OrganizationID:   u.OrganizationID,
-		OrganizationName: u.OrganizationName,
-		PointHistory:     nil,
+		OrganizationID:   org.ID,
+		OrganizationName: org.Name,
+		TotalPoint:       u.TotalUserPoint,
+		PointHistory:     fromDomainUserPoints(ups),
 	}
 }
 
-//func fromDomainPointHistory(h []domain.Point) []Point {
-//	history := []Point{}
-//	for _, p := range h {
-//		history = append(history, Point{
-//			ID:        p.ID,
-//			UserID:    p.UserID,
-//			Amount:    p.Amount,
-//			CreatedAt: p.CreatedAt,
-//		})
-//	}
-//
-//	return history
-//}
+func fromDomainUserPoints(ups []model.UserPoint) []Point {
+	points := make([]Point, 0, len(ups))
+	for _, up := range ups {
+		points = append(points, Point{
+			ID:        up.ID,
+			UserID:    up.UserID,
+			Title:     up.Title,
+			Amount:    up.Amount,
+			CreatedAt: up.CreatedAt,
+		})
+	}
+	return points
+}

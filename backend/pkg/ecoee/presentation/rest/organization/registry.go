@@ -61,15 +61,14 @@ func (r *Registry) createOrganization(ctx *gin.Context) {
 		TotalDonationPoint:   0,
 		MinimumDonationPoint: req.MinimumDonationPoint,
 	}
-	org, err := r.organizationRepository.Create(ctx, newOrg)
+	_, err := r.organizationRepository.Create(ctx, newOrg)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to save organization: %v", err))
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
 
-	dto := fromDomainOrganization(org)
-	ctx.JSON(http.StatusCreated, dto)
+	ctx.JSON(http.StatusOK, fromDomainOrganization(newOrg))
 }
 
 func (r *Registry) getOrganization(ctx *gin.Context) {
@@ -93,11 +92,20 @@ func (r *Registry) getOrganization(ctx *gin.Context) {
 		return
 	}
 
-	dto := fromDomainOrganization(org, resp)
+	dto := fromDomainOrganizationWithRanking(org, resp)
 	ctx.JSON(http.StatusOK, dto)
 }
 
-func fromDomainOrganization(org model.Organization, resp service.OrganizationPointRankerQueryResponse) Organization {
+func fromDomainOrganization(org model.Organization) Organization {
+	return Organization{
+		ID:                   org.ID,
+		Name:                 org.Name,
+		TotalDonationPoint:   org.TotalDonationPoint,
+		MinimumDonationPoint: org.MinimumDonationPoint,
+	}
+}
+
+func fromDomainOrganizationWithRanking(org model.Organization, resp service.OrganizationPointRankerQueryResponse) Organization {
 	return Organization{
 		ID:                   org.ID,
 		Name:                 org.Name,

@@ -5,6 +5,7 @@ import "time"
 type Point struct {
 	ID        string    `bson:"id"`
 	Amount    int       `bson:"amount"`
+	Title     string    `bson:"title"`
 	CreatedAt time.Time `bson:"created_at"`
 }
 

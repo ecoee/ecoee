@@ -12,12 +12,14 @@ import (
 )
 
 type SavePointRequest struct {
-	UserPointAmount         int `json:"user_point_amount"`
-	OrganizationPointAmount int `json:"organization_point_amount"`
+	UserPointAmount         int    `json:"user_point_amount"`
+	OrganizationPointAmount int    `json:"organization_point_amount"`
+	Title                   string `json:"title"`
 }
 
 type DeductPointRequest struct {
-	Amount int `json:"amount"`
+	Amount int    `json:"amount"`
+	Title  string `json:"title"`
 }
 
 type Registry struct {
@@ -82,6 +84,7 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 		userPoint := model.UserPoint{
 			Point: model.Point{
 				ID:        uuid.NewString(),
+				Title:     savePointReq.Title,
 				Amount:    savePointReq.UserPointAmount,
 				CreatedAt: util.Now(),
 			},
@@ -107,6 +110,7 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 		orgPoint := model.OrgPoint{
 			Point: model.Point{
 				ID:        uuid.NewString(),
+				Title:     savePointReq.Title,
 				Amount:    savePointReq.OrganizationPointAmount,
 				CreatedAt: util.Now(),
 			},

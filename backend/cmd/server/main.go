@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"ecoee/pkg/config"
+	"ecoee/pkg/ecoee/domain/service"
 	db2 "ecoee/pkg/ecoee/infrastructure/db"
 	"ecoee/pkg/ecoee/infrastructure/db/mongo"
 	"ecoee/pkg/ecoee/infrastructure/gemini"
@@ -49,10 +50,13 @@ func main() {
 		return
 	}
 
+	// init domain layer
+	pointService := service.NewPointService(pointRepository, userRepository)
+
 	// init presentation layer
 	healthRegistry := health.NewRegistry()
-	userRegistry := user.NewRegistry(userRepository, organizationRepository)
-	organizationRegistry := organization.NewRegistry(organizationRepository)
+	userRegistry := user.NewRegistry(userRepository, organizationRepository, pointService)
+	organizationRegistry := organization.NewRegistry(organizationRepository, pointService)
 	assessmentRegistry := assessment.NewRegistry(assessRepository)
 	pointRegistry := point.NewRegistry(userRepository, organizationRepository, pointRepository)
 

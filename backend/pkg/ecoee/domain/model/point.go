@@ -18,6 +18,7 @@ type OrgPoint struct {
 
 type Point struct {
 	ID        string
+	Title     string
 	Amount    int
 	CreatedAt time.Time
 }
@@ -28,7 +29,7 @@ type OrganizationUser struct {
 }
 
 type PointRepository interface {
-	ListUserPoints(ctx context.Context, orgID, userID string) ([]UserPoint, error)
+	ListUserPoints(ctx context.Context, userID string) ([]UserPoint, error)
 	ListOrgPoints(ctx context.Context, orgID string) ([]OrgPoint, error)
 	SaveUserPoint(ctx context.Context, point UserPoint) error
 	SaveOrgPoint(ctx context.Context, point OrgPoint) error

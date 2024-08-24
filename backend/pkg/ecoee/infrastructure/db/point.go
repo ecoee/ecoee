@@ -20,8 +20,8 @@ type PointRepository struct {
 	db *mongo.Database
 }
 
-func (r *PointRepository) ListUserPoints(ctx context.Context, orgID, userID string) ([]model.UserPoint, error) {
-	cursor, err := r.db.Collection(_userCollection).Find(ctx, bson.M{"org_id": orgID, "user_id": userID})
+func (r *PointRepository) ListUserPoints(ctx context.Context, userID string) ([]model.UserPoint, error) {
+	cursor, err := r.db.Collection(_userPointCollection).Find(ctx, bson.M{"user_id": userID})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to find user points")
 	}
@@ -40,18 +40,19 @@ func (r *PointRepository) ListUserPoints(ctx context.Context, orgID, userID stri
 }
 
 func (r *PointRepository) ListOrgPoints(ctx context.Context, orgID string) ([]model.OrgPoint, error) {
-	cursor, err := r.db.Collection(_organizationCollection).Find(ctx, bson.M{"organization_id": orgID})
+	cursor, err := r.db.Collection(_orgPointCollection).Find(ctx, bson.M{"organization_id": orgID})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to find org points")
 	}
 
-	var points []dto.OrgPoint
+	points := []dto.OrgPoint{}
 	if err := cursor.All(ctx, &points); err != nil {
 		return nil, errors.Wrapf(err, "failed to decode org points")
 	}
 
 	var orgPoints []model.OrgPoint
 	for _, point := range points {
+		slog.Info(fmt.Sprintf("orgPoint id: %s, userID: %s, orgID: %s, amount: %d", point.ID, point.UserID, point.OrgID, point.Amount))
 		orgPoints = append(orgPoints, toDomainOrgPoint(point))
 	}
 	return orgPoints, nil
@@ -61,6 +62,7 @@ func (r *PointRepository) SaveUserPoint(ctx context.Context, point model.UserPoi
 	_, err := r.db.Collection(_userPointCollection).InsertOne(ctx, dto.UserPoint{
 		Point: dto.Point{
 			ID:        point.ID,
+			Title:     point.Title,
 			Amount:    point.Amount,
 			CreatedAt: point.CreatedAt,
 		},
@@ -102,6 +104,7 @@ func toDomainUserPoint(point dto.UserPoint) model.UserPoint {
 	return model.UserPoint{
 		Point: model.Point{
 			ID:        point.ID,
+			Title:     point.Title,
 			Amount:    point.Amount,
 			CreatedAt: point.CreatedAt,
 		},
@@ -116,6 +119,7 @@ func toDomainOrgPoint(point dto.OrgPoint) model.OrgPoint {
 			Amount:    point.Amount,
 			CreatedAt: point.CreatedAt,
 		},
-		OrgID: point.OrgID,
+		UserID: point.UserID,
+		OrgID:  point.OrgID,
 	}
 }
