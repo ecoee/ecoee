@@ -8,16 +8,18 @@ import (
 )
 
 const (
-	mongoDBHost       = "MONGO_DB_HOST"
-	mongoDBUserName   = "MONGO_DB_USER_NAME"
-	mongoDBPassword   = "MONGO_DB_PASSWORD" // #nosec
-	vertexAIProjectID = "VERTEX_AI_PROJECT_ID"
-	vertexAILocation  = "VERTEX_AI_LOCATION"
+	mongoDBHost            = "MONGO_DB_HOST"
+	mongoDBUserName        = "MONGO_DB_USER_NAME"
+	mongoDBPassword        = "MONGO_DB_PASSWORD" // #nosec
+	vertexAIProjectID      = "VERTEX_AI_PROJECT_ID"
+	vertexAILocation       = "VERTEX_AI_LOCATION"
+	cloudStorageBucketName = "CLOUD_STORAGE_BUCKET_NAME"
 )
 
 type Config struct {
-	MongoDBConfig  MongoDBConfig  `json:"mongo_db_config"`
-	VertexAIConfig VertexAIConfig `json:"vertex_ai_config"`
+	MongoDBConfig      MongoDBConfig      `json:"mongo_db_config"`
+	GCPConfig          GCPConfig          `json:"gcp_config"`
+	CloudStorageConfig CloudStorageConfig `json:"cloud_storage_config"`
 }
 
 type MongoDBConfig struct {
@@ -27,9 +29,14 @@ type MongoDBConfig struct {
 	MongoDBPassword string `json:"mongo_db_password"`
 }
 
-type VertexAIConfig struct {
-	ProjectID string `json:"project_id"`
-	Location  string `json:"location"`
+type GCPConfig struct {
+	ProjectID          string             `json:"project_id"`
+	Location           string             `json:"location"`
+	CloudStorageConfig CloudStorageConfig `json:"cloud_storage_config"`
+}
+
+type CloudStorageConfig struct {
+	BucketName string `json:"bucket_name"`
 }
 
 func NewConfig(v *viper.Viper) Config {
@@ -42,9 +49,12 @@ func NewConfig(v *viper.Viper) Config {
 			MongoDBUserName: v.GetString(mongoDBUserName),
 			MongoDBPassword: v.GetString(mongoDBPassword),
 		},
-		VertexAIConfig: VertexAIConfig{
+		GCPConfig: GCPConfig{
 			ProjectID: v.GetString(vertexAIProjectID),
 			Location:  v.GetString(vertexAILocation),
+			CloudStorageConfig: CloudStorageConfig{
+				BucketName: v.GetString(cloudStorageBucketName),
+			},
 		},
 	}
 }
@@ -59,6 +69,7 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault(mongoDBPassword, "ecoee")
 	v.SetDefault(vertexAIProjectID, "ecoee-433110")
 	v.SetDefault(vertexAILocation, "asia-northeast3")
+	v.SetDefault(cloudStorageBucketName, "ecoee-assessment")
 }
 
 func bindEnvironment(v *viper.Viper) {
