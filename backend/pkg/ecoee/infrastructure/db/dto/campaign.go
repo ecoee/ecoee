@@ -10,5 +10,6 @@ type Campaign struct {
 }
 
 type CampaignVotedUser struct {
-	UserID string `bson:"user_id"`
+	UserID     string `bson:"user_id"`
+	CampaignID string `bson:"campaign_id"`
 }

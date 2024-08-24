@@ -72,7 +72,8 @@ func (r *CampaignRepository) List(ctx context.Context, orgID string) ([]model.Ca
 func (r *CampaignRepository) Vote(ctx context.Context, campaignID, userID string) error {
 	collection := r.db.Collection(_campaignVotedUserCollection)
 	campaignVotedUser := &dto.CampaignVotedUser{
-		UserID: userID,
+		CampaignID: campaignID,
+		UserID:     userID,
 	}
 	_, err := collection.InsertOne(ctx, campaignVotedUser)
 	if err != nil {
