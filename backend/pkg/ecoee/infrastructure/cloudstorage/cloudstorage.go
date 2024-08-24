@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	_credentialPath = "./storage-service-account.json"
+	_credentialPath = "./storage/storage-service-account.json"
 )
 
 type Repository struct {
