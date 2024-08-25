@@ -33,6 +33,9 @@ import (
 
 func main() {
 
+	slog.Info(fmt.Sprintf("VERTEX=%s", os.Getenv("VERTEX")))
+	slog.Info(fmt.Sprintf("STROAGE=%s", os.Getenv("STORAGE")))
+
 	dir, _ := os.Getwd()
 	files, _ := os.ReadDir(dir)
 	slog.Info(fmt.Sprintf("=======Current directory: ", dir))
