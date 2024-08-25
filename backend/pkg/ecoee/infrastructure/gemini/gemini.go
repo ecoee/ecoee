@@ -32,6 +32,7 @@ func NewRepository(ctx context.Context, config config.Config) (*Repository, erro
 		slog.Error(fmt.Sprintf("failed to marshal vertex config %v", errors.WithStack(err)))
 		return nil, err
 	}
+	slog.Info(fmt.Sprintf("credential=%v", string(credential)))
 	opt := option.WithCredentialsJSON(credential)
 	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location, opt)
 	if err != nil {

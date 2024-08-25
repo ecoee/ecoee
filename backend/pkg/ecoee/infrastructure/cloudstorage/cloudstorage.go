@@ -27,6 +27,7 @@ func NewRepository(ctx context.Context, config config.Config) (*Repository, erro
 		slog.Error(fmt.Sprintf("failed to marshal storage config %v", errors.WithStack(err)))
 		return nil, err
 	}
+	slog.Info(fmt.Sprintf("credential=%v", string(credential)))
 	opt := option.WithCredentialsJSON(credential)
 	client, err := storage.NewClient(ctx, opt)
 	if err != nil {
