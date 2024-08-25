@@ -1,4 +1,4 @@
-# angelhack2024
+# ecoe_flutter
 
 A new Flutter project.
 

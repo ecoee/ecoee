@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "268360468047",
+    "project_id": "ecoe-4a7be",
+    "storage_bucket": "ecoe-4a7be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268360468047:android:56d31bfac4b22d0836cc3a",
+        "android_client_info": {
+          "package_name": "com.angelhack.ecoe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHeowYjiH3R8YrFEb_D7Fcucoewzw860c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
