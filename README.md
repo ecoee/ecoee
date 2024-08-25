@@ -1,5 +1,7 @@
 # ecoee @ Hackseoul
 
+![image](https://github.com/user-attachments/assets/b0f7db59-3f37-4de3-83ca-7f23ba1bf8c8)
+
 ## About
 
 ecoee connects small-scale individual recycling efforts to large-scale social donations.
