@@ -41,7 +41,7 @@ func main() {
 		return
 	}
 
-	cloudStroageRepository, err := cloudstorage.NewRepository(ctx, config)
+	cloudStorageRepository, err := cloudstorage.NewRepository(ctx, config)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create cloud storage repository %v", errors.WithStack(err)))
 		return
@@ -65,7 +65,7 @@ func main() {
 	organizationRegistry := organization.NewRegistry(organizationRepository, pointService)
 	assessmentRegistry := assessment.NewRegistry(assessRepository)
 	pointRegistry := point.NewRegistry(userRepository, organizationRepository, pointRepository)
-	campaignRegistry := campaign.NewRegistry(campaignRepository, userRepository, cloudStroageRepository)
+	campaignRegistry := campaign.NewRegistry(campaignRepository, userRepository, cloudStorageRepository)
 
 	//init gin
 	r := gin.New()

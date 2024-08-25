@@ -54,6 +54,8 @@ func (r *Registry) addPoint(ctx *gin.Context) {
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
+
+	slog.Info(fmt.Sprintf("savePointReq: %v", savePointReq))
 	user, err := r.userRepository.GetByID(ctx, orgId, userId)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to get user: %v", err))
