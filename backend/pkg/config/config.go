@@ -2,9 +2,8 @@ package config
 
 import (
 	"fmt"
-	"log/slog"
-
 	"github.com/spf13/viper"
+	"log/slog"
 )
 
 const (
@@ -15,6 +14,8 @@ const (
 	vertexAIProjectID      = "VERTEX_AI_PROJECT_ID"
 	vertexAILocation       = "VERTEX_AI_LOCATION"
 	cloudStorageBucketName = "CLOUD_STORAGE_BUCKET_NAME"
+	storage                = "STORAGE"
+	vertexAI               = "VERTEX"
 )
 
 type Config struct {
@@ -34,6 +35,8 @@ type GCPConfig struct {
 	Location           string             `json:"location"`
 	APIKey             string             `json:"api_key"`
 	CloudStorageConfig CloudStorageConfig `json:"cloud_storage_config"`
+	Storage            string             `json:"storage"`
+	Vertex             string             `json:"vertex"`
 }
 
 type CloudStorageConfig struct {
@@ -57,6 +60,8 @@ func NewConfig(v *viper.Viper) Config {
 			CloudStorageConfig: CloudStorageConfig{
 				BucketName: v.GetString(cloudStorageBucketName),
 			},
+			Storage: v.GetString(storage),
+			Vertex:  v.GetString(vertexAI),
 		},
 	}
 }
@@ -86,4 +91,6 @@ func bindEnvironment(v *viper.Viper) {
 	_ = v.BindEnv(vertexAIProjectID)
 	_ = v.BindEnv(vertexAILocation)
 	_ = v.BindEnv(cloudStorageBucketName)
+	_ = v.BindEnv(storage)
+	_ = v.BindEnv(vertexAI)
 }
