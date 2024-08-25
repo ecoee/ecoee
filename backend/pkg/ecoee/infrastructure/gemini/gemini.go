@@ -26,7 +26,13 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
-	opt := option.WithCredentialsFile(_credentialPath)
+	slog.Info(fmt.Sprintf("vertex=%v", config.GCPConfig.Vertex))
+	credential, err := json.Marshal(config.GCPConfig.Vertex)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to marshal vertex config %v", errors.WithStack(err)))
+		return nil, err
+	}
+	opt := option.WithCredentialsJSON(credential)
 	client, err := genai.NewClient(ctx, config.GCPConfig.ProjectID, config.GCPConfig.Location, opt)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to create GenAI client %v", errors.WithStack(err)))
