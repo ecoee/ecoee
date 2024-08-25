@@ -4,7 +4,6 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"ecoee/pkg/config"
-	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"google.golang.org/api/option"
@@ -22,12 +21,8 @@ type Repository struct {
 
 func NewRepository(ctx context.Context, config config.Config) (*Repository, error) {
 	slog.Info(fmt.Sprintf("storage=%v", config.GCPConfig.Storage))
-	credential, err := json.Marshal(config.GCPConfig.Storage)
-	if err != nil {
-		slog.Error(fmt.Sprintf("failed to marshal storage config %v", errors.WithStack(err)))
-		return nil, err
-	}
-	slog.Info(fmt.Sprintf("credential=%v", string(credential)))
+	storageEnv := config.GCPConfig.Storage
+	credential := []byte(storageEnv)
 	opt := option.WithCredentialsJSON(credential)
 	client, err := storage.NewClient(ctx, opt)
 	if err != nil {
