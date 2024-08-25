@@ -32,6 +32,14 @@ import (
 )
 
 func main() {
+
+	dir, _ := os.Getwd()
+	files, _ := os.ReadDir(dir)
+	slog.Info(fmt.Sprintf("========Current directory: ", dir))
+	for _, file := range files {
+		slog.Info(fmt.Sprintf("file name: %s", file.Name()))
+	}
+
 	ctx := context.Background()
 
 	config := config.NewConfig(viper.New())
