@@ -40,7 +40,7 @@ func NewRegistry(userRepository model.UserRepository,
 }
 
 func (r *Registry) Register(e *gin.Engine) {
-	e.POST("/api/orgs/:orgId/users/:userId/points/add", r.addPoint)
+	e.POST("/api/orgs/:orgId/users/:userId/points/save", r.addPoint)
 	e.POST("/api/orgs/:orgId/users/:userId/points/deduct", r.deductUserPoint)
 }
 
