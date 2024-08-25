@@ -17,8 +17,7 @@ type GeminiResponse struct {
 }
 
 const (
-	_modelName = "gemini-1.5-pro-001"
-	//_modelName      = "gemini-1.0-pro-vision-001"
+	_modelName      = "gemini-1.5-pro-001"
 	_credentialPath = "./vertex/vertexai-service-account.json"
 )
 
